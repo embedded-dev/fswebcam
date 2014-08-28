@@ -437,6 +437,7 @@ gdImage* fswc_gdImageDuplicate(gdImage* src)
 int fswc_output(fswebcam_config_t *config, char *name, gdImage *image)
 {
 	char filename[FILENAME_MAX];
+	char tmpname[FILENAME_MAX];
 	gdImage *im;
 	FILE *f;
 	
@@ -482,7 +483,11 @@ int fswc_output(fswebcam_config_t *config, char *name, gdImage *image)
 	fswc_draw_overlay(config, config->overlay, im);
 	
 	/* Write to a file if a filename was given, otherwise stdout. */
-	if(strncmp(name, "-", 2)) f = fopen(filename, "wb");
+	if(strncmp(name, "-", 2))
+	{
+		snprintf(tmpname, sizeof(tmpname), "%s-tmp", filename);
+		f = fopen(tmpname, "wb");
+	}
 	else f = stdout;
 	
 	if(!f)
@@ -506,8 +511,11 @@ int fswc_output(fswebcam_config_t *config, char *name, gdImage *image)
 		break;
 	}
 	
-	if(f != stdout) fclose(f);
-	
+	if(f != stdout)
+	{
+		fclose(f);
+		rename(tmpname, filename);
+	}
 	gdImageDestroy(im);
 	
 	return(0);
