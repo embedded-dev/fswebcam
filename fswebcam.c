@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
+#include <locale.h>
 #include <gd.h>
 #include <errno.h>
 #include <signal.h>
@@ -138,8 +139,8 @@ typedef struct {
 	uint8_t list;
 	
 	/* Image capture options. */
-	unsigned int width;
-	unsigned int height;
+	int width;
+	int height;
 	unsigned int frames;
 	unsigned int fps;
 	unsigned int skipframes;
@@ -1146,7 +1147,7 @@ int fswc_usage()
 	       "     --overlay <PNG image>    Sets the overlay image.\n"
 	       "     --no-overlay             Clears the overlay.\n"
 	       "     --jpeg <factor>          Outputs a JPEG image. (-1, 0 - 95)\n"
-	       "     --png <factor>           Outputs a PNG image. (-1, 0 - 10)\n"
+	       "     --png <factor>           Outputs a PNG image. (-1, 0 - 9)\n"
 	       "     --save <filename>        Save image to file.\n"
 	       "     --exec <command>         Execute a command and wait for it to complete.\n"
 	       "\n");
@@ -1599,6 +1600,9 @@ int fswc_free_config(fswebcam_config_t *config)
 int main(int argc, char *argv[])
 {
 	fswebcam_config_t *config;
+	
+	/* Set the locale to the system default */
+	setlocale(LC_ALL, "");
 	
 	/* Prepare the configuration structure. */
 	config = calloc(sizeof(fswebcam_config_t), 1);
